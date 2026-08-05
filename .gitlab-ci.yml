@@ -22,7 +22,7 @@ sync-to-github:
     no_proxy: "127.0.0.1,localhost"
   script:
     # 添加 GitHub 远程
-    - git remote add github https://houxiaoyi0722:${GITHUB_TOKEN}@github.com/houxiaoyi0722/cashbook_app.git
+    - git remote add github https://saaangxy:${GITHUB_TOKEN}@github.com/saaangxy/cashbook_app.git
     # 确保获取所有远程分支和对象（即便 GIT_DEPTH=0 也执行一次全量 fetch）
     - git fetch --all
     # 推送完整分支，同时上传所有 Git LFS 对象
