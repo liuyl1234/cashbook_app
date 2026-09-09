@@ -27,10 +27,6 @@ jobs:
       - name: Install Android SDK & NDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK components
-        run: |
-          sdkmanager "platforms;android34" "build-tools;34.0.0"
-
       - name: Build Debug APK
         run: |
           cd android
