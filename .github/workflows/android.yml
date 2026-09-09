@@ -18,6 +18,10 @@ jobs:
       - name: Install JS dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Bundle JS code for Android
+        run: |
+          npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
@@ -35,8 +39,12 @@ jobs:
 
       - name: 查找APK文件位置
         run: |
+          echo "==== 列出 android/app 目录 ===="
+          ls -la android/app/
+          echo "==== 列出 android/app/build 目录 ===="
+          ls -la android/app/build/ || echo "android/app/build 文件夹不存在"
+          echo "==== 搜索全部apk ===="
           find android -type f -name "*.apk"
-          ls -la android/app/build/outputs/apk/ || echo "apk输出目录不存在"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
