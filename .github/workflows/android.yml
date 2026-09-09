@@ -45,6 +45,10 @@ jobs:
           ./gradlew clean
           ./gradlew assembleDebug
 
+      - name: 查找APK文件位置
+        run: |
+          find android -name "*.apk"  
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
