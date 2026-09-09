@@ -1,60 +1,53 @@
-name: Build Android
-
+name: Build Android APK
 on:
   push:
-    branches: [main, master]
-    tags:
-      - 'v*'
-  pull_request:
-    branches: [main, master]
-  workflow_dispatch:
+    branches: [ main ]
+  workflow_dispatch: # 允许网页手动点击运行
 
 jobs:
-  build-android:
-    name: Build Android APK
+  build:
     runs-on: ubuntu-latest
-    
+    env:
+      # 限制Gradle内存，防止OOM（重点！解决ninja内存爆掉）
+      GRADLE_OPTS: "-Xmx4g -Dorg.gradle.daemon=false"
+      ANDROID_NDK_VERSION: "27.1.12297006"
+      ANDROID_SDK_PLATFORM: "android-34"
+      ANDROID_BUILD_TOOLS: "34.0.0"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: 20
+          cache: 'npm'
 
-      - name: Setup JDK
+      - name: Install JS dependencies
+        run: npm install
+
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
+          java-version: 17
           distribution: 'temurin'
-          java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Create release keystore
-        working-directory: android/app
+      - name: Install Android SDK & NDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11.0
         run: |
-          # Create a dummy release keystore for CI builds
-          keytool -genkeypair -v -storetype PKCS12 -keystore my-release-key.keystore \
-            -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass cashbook -keypass cashbook \
-            -dname "CN=CI Build, OU=CI, O=CI, L=City, ST=State, C=US"
+          sdkmanager --install "platform-tools" "platforms;${{ env.ANDROID_SDK_PLATFORM }}" "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" "ndk;${{ env.ANDROID_NDK_VERSION }}"
 
-      - name: Build Android Release APK (bundled JS)
-        working-directory: android
+      - name: Build Debug APK（测试包，无需签名）
         run: |
+          cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew clean
+          ./gradlew assembleDebug
 
-      - name: Upload APK artifacts
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-release-apk
-          path: android/app/build/outputs/apk/release/*.apk
+          name: cashbook-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
