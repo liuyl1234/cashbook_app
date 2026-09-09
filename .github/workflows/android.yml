@@ -2,14 +2,13 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # 允许网页手动点击运行
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # 限制Gradle内存，防止OOM（重点！解决ninja内存爆掉）
-      GRADLE_OPTS: "-Xmx4g -Dorg.gradle.daemon=false"
+      GRADLE_OPTS: "-Xmx3g -Dorg.gradle.daemon=false"
       ANDROID_NDK_VERSION: "27.1.12297006"
       ANDROID_SDK_PLATFORM: "android-34"
       ANDROID_BUILD_TOOLS: "34.0.0"
@@ -34,12 +33,12 @@ jobs:
 
       - name: Install Android SDK & NDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11.0
+
+      - name: Install SDK components
         run: |
           sdkmanager --install "platform-tools" "platforms;${{ env.ANDROID_SDK_PLATFORM }}" "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" "ndk;${{ env.ANDROID_NDK_VERSION }}"
 
-      - name: Build Debug APK（测试包，无需签名）
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
