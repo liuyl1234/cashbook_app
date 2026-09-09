@@ -19,6 +19,7 @@
 </p>
 
 Cashbook App 是 [Cashbook](https://github.com/dingdangdog/cashbook) 的移动客户端，提供便捷的记账体验，随时随地管理您的财务。
+修改Cashbook名为Y记账
 
 ## ✨ 功能特点
 已支持功能
